@@ -45,13 +45,23 @@ double l(int k, vector<double> & v, double t){
 
 }
 
-//compile com g++ codigo.cpp -lGL -lGLU -lglut
-//preencha a seguinte função
-//seja n a quantidade de pontos (tamanho do vetor)
-//a função deve retornar o valor v(t), tal que:
-//	quando t = 0, retorna v[0]
-//	quando t = 1, retorna v[n-1]
-double interpolacao(vector<double> v, double t) {
+int fac[2000] = {0};
+int comb[2000][2000] = {0};
+
+int factorial(int n)
+{
+	if (fac[n] == 0)
+		fac[n] = (n == 1 || n == 0) ? 1 : factorial(n - 1) * n;
+  return fac[n];
+}
+
+int combination(int r, int n){
+	if (comb[r][n] == 0)
+		comb[r][n] = factorial(n) / (factorial(r) * factorial(n-r));
+	return comb[r][n];
+}
+
+double lagrange_interpolacao(vector<double> v, double t) {
 	int n = v.size();
 	if(n < 2) return 0;
 	double ret = 0;
@@ -61,6 +71,54 @@ double interpolacao(vector<double> v, double t) {
 	}
 
 	return ret;
+}
+double b(int i, int n, double t){
+	return combination(i,n)*pow(t,i)*pow((1-t),(n-i));
+}
+double naive_bezier_interpolacao(vector<double> & v, double t){
+	int n = v.size();
+
+	double ret = 0;
+	for (int i = 0; i < n; ++i)
+	{
+		ret+=b(i,n-1,t)*v[i];
+	}
+
+	return ret;
+}
+
+double castejau_interpolacao(vector<double> & v, double t){
+	// algoritmo de De Casteljau
+	if (v.size() == 0)
+		return 0;
+	int n = v.size() - 1;
+	double ret = 0;
+	vector<double> q(n+1);
+
+	for (int i = 0; i <= n;i++)
+		q[i] = v[i];
+	
+
+	for (int i = 1; i <= n; i++){
+		for (int j = 0; j <= (n-i); j++){
+
+			q[j] = (1-t)*q[j] + t*q[j+1];
+		}
+	}
+
+	return q[0];
+}
+
+
+
+//compile com g++ codigo.cpp -lGL -lGLU -lglut
+//preencha a seguinte função
+//seja n a quantidade de pontos (tamanho do vetor)
+//a função deve retornar o valor v(t), tal que:
+//	quando t = 0, retorna v[0]
+//	quando t = 1, retorna v[n-1]
+double interpolacao(vector<double> v, double t) {
+	return naive_bezier_interpolacao(v,t);
 }
 
 
