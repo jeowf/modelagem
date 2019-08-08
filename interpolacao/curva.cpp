@@ -72,6 +72,7 @@ double lagrange_interpolacao(vector<double> v, double t) {
 
 	return ret;
 }
+
 double b(int i, int n, double t){
 	return combination(i,n)*pow(t,i)*pow((1-t),(n-i));
 }
@@ -86,6 +87,7 @@ double naive_bezier_interpolacao(vector<double> & v, double t){
 
 	return ret;
 }
+
 
 double castejau_interpolacao(vector<double> & v, double t){
 	// algoritmo de De Casteljau
@@ -109,7 +111,33 @@ double castejau_interpolacao(vector<double> & v, double t){
 	return q[0];
 }
 
+double g(double t){
+	if (t >= 0 and t <= 1)
+		return (t*t)/2.0;
+	else if (t >=1 and t <= 2)
+		return 0.75 - pow((t-1.5),2);
+	else if (t >= 2 and t <=3 )
+		return pow((3-t),2)/2.0;
+	else
+		return 0.0;
+}
 
+double spline_interpolacao(vector<double> & v, double t){
+	if (v.size() == 0)
+		return 0;
+
+	int n = v.size();
+	t = 2 + t*(n-1-1);
+
+	double ret = 0;
+
+	for (int i = 0; i < n; i++){
+		ret += v[i]*g(t-i);
+	}
+
+
+	return ret;
+}
 
 //compile com g++ codigo.cpp -lGL -lGLU -lglut
 //preencha a seguinte função
@@ -118,7 +146,7 @@ double castejau_interpolacao(vector<double> & v, double t){
 //	quando t = 0, retorna v[0]
 //	quando t = 1, retorna v[n-1]
 double interpolacao(vector<double> v, double t) {
-	return naive_bezier_interpolacao(v,t);
+	return spline_interpolacao(v,t);
 }
 
 
